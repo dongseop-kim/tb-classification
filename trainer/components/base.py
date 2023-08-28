@@ -1,4 +1,6 @@
 
+from abc import abstractmethod
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
@@ -10,44 +12,47 @@ from torch.utils.data import Dataset
 from utils.cxr import load_cxr_image
 
 
-class BaseClassification(Dataset):
+@dataclass
+class DummyData:
+    path_image: Union[Path, str]
+    image: np.ndarray
+    labels: Any
+    masks: Optional[np.ndarray] = None
+    boxes: Optional[List[float]] = None
+    boxes_label: Optional[List[int]] = None
+    etc: Dict[str, Any] = field(default_factory=dict)
+
+
+
+class BaseComponents(Dataset):
     """
-    Base Dataset for classification task
+    Base Componenets for all datasets
 
     Args:
         data_dir (Union[Path, str]): data directory
-        split (str): train, val, test
-        transforms (Dict[str, Dict]): transforms for train, val, test
-        fold_val (int): fold number for validation
-        lesion_classes (List[int]): list of lesion classes
-        use_low_image (bool): use low image or not
-        do_windowing (bool): do windowing or not
-        do_standardization (bool): do standardization or not
-        mean (float): mean for standardization
-        std (float): std for standardization
-        annotation_json_fname (str): annotation json file name
+        split (str): train, val, test, trainval
+        transforms (Dict[str, Dict]): transforms for train, val, test, trainval
     """
 
     def __init__(self,
                  data_dir: Union[Path, str],
                  split: str,
-                 transforms: Optional[Dict[str, Dict]] = None,
-                 annotation_json_fname: Union[List[str], str] = None):
+                 transforms: Optional[Dict[str, Dict]] = None):
         self.data_dir = data_dir
+        assert split in ['train', 'val', 'test', 'trainval']
         self.split = split
-        # self.transforms = get_transform(transforms)
         self.transforms = transforms
 
         self.num_classes = -1
         self.collate_fn = None
 
     def __getitem__(self, idx):
-        image, labels, path = self._load_data(idx)
-        transformed = self.transforms(image=image)
+        dummy_data: DummyData = self._load_data(idx)
+        transformed = self.transforms(image=dummy_data.image)
         image = F.to_tensor(transformed['image'])
         return {"image": image,  # C H W
-                "target": {"labels": labels,  # C
-                           "path": path}}
+                "target": {"labels": dummy_data.labels,
+                           "path": dummy_data.path_image}}
 
     def __len__(self):
         # return len(self.annot_loader)
@@ -56,31 +61,11 @@ class BaseClassification(Dataset):
     def _load_image(self, path_image: str, is_cxr: bool = True) -> np.ndarray:
         image: np.ndarray = cv2.imread(path_image, cv2.IMREAD_UNCHANGED)
         image = image.astype(np.float32)
-        image = load_cxr_image(filename=path_image)
+        image = load_cxr_image(path_image) if is_cxr else image
         image = image * 255.0
         image = image.astype(np.uint8)
         return image
 
-    def _load_data(self, idx):
-        annot: AnnotOutput = self.annot_loader[idx]
-
-        # load image
-        path_image: str = annot.path_image
-        # TODO: 아래 변환을 변수로 처리하기
-        path_image = path_image.replace("image_v1", "image_v1_1024") if self.use_low_image else path_image
-        image = self._load_image(path_image, self.do_windowing, self.split)
-
-        # load labels
-        labels = annot.lesion_classes
-        labels = self._class_to_onehot(labels)
-        return image, labels, path_image
-
-    def _class_to_onehot(self, lesion_classes: List[int]) -> np.ndarray:
-        onehot = np.zeros(self.num_classes, dtype=np.int64)
-
-        if not lesion_classes:
-            onehot[0] = 1
-            return onehot
-        for class_id in lesion_classes:
-            onehot[self.classid_to_trainid[class_id]] = 1
-        return onehot
+    @abstractmethod
+    def _load_data(self, idx) -> DummyData:
+        raise NotImplementedError

@@ -1,13 +1,13 @@
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
 import albumentations as A
 from albumentations.core.serialization import Serializable
 from albumentations.pytorch.transforms import ToTensorV2
 from omegaconf import DictConfig, ListConfig
 
 # pixel-level and spatial-level transforms
-import .pixel as t_p
-import .spatial as t_s
-
+import trainer.components.transforms.pixel as t_p
+import trainer.components.transforms.spatial as t_s
 
 available_transforms__ = {"resize": A.Resize,
                           "random_flip": A.HorizontalFlip,
