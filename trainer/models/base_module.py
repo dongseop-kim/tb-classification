@@ -14,13 +14,14 @@ class UpsampleAdd(nn.Module):
         scale_factor (int): scale factor
         mode (str): upsampling mode
         align_corners (bool): align_corners
-    
+
     Returns:
         torch.Tensor: upsampled and added tensor    
     """
-    def __init__(self, 
-                 scale_factor: int, 
-                 mode: str = "bilinear", 
+
+    def __init__(self,
+                 scale_factor: int,
+                 mode: str = "bilinear",
                  align_corners: bool = True):
         super().__init__()
         self.scale_factor = scale_factor
@@ -38,11 +39,12 @@ class Concat(nn.Module):
 
     Args:
         dim (int): dimension to concatenate
-    
+
     Returns:
         torch.Tensor: concatenated tensor    
     """
-    def __init__(self, dim:int=1):
+
+    def __init__(self, dim: int = 1):
         super().__init__()
         self.dim = dim
 
