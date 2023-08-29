@@ -1,6 +1,8 @@
 from typing import List, Union
 
-available_headers = {}
+from .classification import BasicClassifier
+
+available_headers = {'base_classifier': BasicClassifier}
 
 
 def build_header(name: str,

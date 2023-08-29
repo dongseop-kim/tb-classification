@@ -12,3 +12,4 @@ class BaseHeader(nn.Module):
         self.num_classes = num_classes
         self.in_channels = in_channels
         self.in_strides = in_strides
+        self.eps = 1e-6
