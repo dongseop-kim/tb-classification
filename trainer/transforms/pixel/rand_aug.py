@@ -7,7 +7,7 @@ from albumentations.core.transforms_interface import ImageOnlyTransform
 
 from .basic import (RandomBilateralFilter, RandomBlur, RandomBrightness,
                     RandomClahe, RandomCompression, RandomContrast,
-                    RandomGamma, RandomHistEqual, RandomNoise)
+                    RandomGamma, RandomHistEqual, RandomNoise, RandomWindowing)
 
 available_t = {'random_blur': RandomBlur,
                'random_gamma': RandomGamma,
@@ -17,7 +17,8 @@ available_t = {'random_blur': RandomBlur,
                'random_hist_equal': RandomHistEqual,
                'random_compression': RandomCompression,
                'random_noise': RandomNoise,
-               'random_bilateral_filter': RandomBilateralFilter
+               'random_bilateral_filter': RandomBilateralFilter,
+               'random_windowing': RandomWindowing,
                }
 
 

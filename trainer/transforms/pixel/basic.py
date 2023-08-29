@@ -14,7 +14,8 @@ class RandomWindowing(ImageOnlyTransform):
                  width_param: float = 4.0,
                  width_range:float = 1.0,
                  use_median:bool = True,
-                 always_apply: bool = False, p: float = 0.5):
+                 always_apply: bool = False, 
+                 p: float = 0.5):
         super().__init__(always_apply, p)
         self.use_median = use_median
         self.width_param = width_param
@@ -24,7 +25,7 @@ class RandomWindowing(ImageOnlyTransform):
     def apply(self, img: np.ndarray, **params) -> np.ndarray:
         width_param = (self.width_param- (self.width_range/2)) + \
         (np.random.rand(1) * (self.width_range))
-        return windowing(img, use_median=self.use_median, width_param=width_param)
+        return windowing(img, use_median=self.use_median, width_param=width_param).astype(np.uint8)
 
     
 class RandomGamma(A.RandomGamma):

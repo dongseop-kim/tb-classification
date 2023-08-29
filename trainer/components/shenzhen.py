@@ -20,16 +20,15 @@ class Shenzhen(BaseComponents):
                  data_dir: Union[Path, str],
                  split: str,
                  transforms: Optional[Dict[str, Dict]] = None):
-        super().__init__(data_dir, split, transforms)
+        super().__init__(data_dir, split)
 
         with open(_ANNOTATION) as f:
-            annots = json.load(f)
-            annots = annots['annotations']
-            if self.split == 'val':
-                split = 'valid'
-            print(split)
+            annots = json.load(f)['annotations']
+            split = 'valid' if self.split == 'val' else split
             self.annots = [annot for annot in annots if annot['etc']['split'] == split]
+        
         self.num_classes = 1 
+        self.transforms = self._build_transforms(transforms)
 
     def __len__(self):
         return len(self.annots)
@@ -40,8 +39,7 @@ class Shenzhen(BaseComponents):
         image = self._load_image(path_image, is_cxr=True)
         age = data['property']['age']
         sex = data['etc']['sex']
-        if data['objects']:
-            labels = 1
+        labels = 1 if data['objects'] else 0
         return DummyData(path_image=path_image,
                          image=image,
                          labels=labels,
