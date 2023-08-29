@@ -3,7 +3,7 @@ from typing import List, Optional
 import torch
 import torch.nn as nn
 
-from trainer.models.base_module import ConvBNReLU
+from trainer.models.layers import ConvBNReLU
 from .base import BaseDecoder
 
 
