@@ -8,11 +8,13 @@ from trainer.components.base import BaseComponents
 from trainer.components.montgomery import Montgomery
 from trainer.components.shenzhen import Shenzhen
 from trainer.components.shmt import SHMT
+from trainer.components.tbx11k import TBX11K
 from trainer.transforms import parse_transforms
 
-_AVAILABLE_DATASETS = {'shenzhen': Shenzhen,
-                       'montgomery': Montgomery,
-                       'shmt': SHMT}
+_AVAILABLE_DATASETS = {'montgomery': Montgomery,
+                       'shenzhen': Shenzhen,
+                       'shmt': SHMT,
+                       'tbx11k': TBX11K}
 
 
 class BaseDataModule(LightningDataModule):
@@ -111,3 +113,4 @@ class BaseDataModule(LightningDataModule):
 DataModuleShenzhen = partial(BaseDataModule, dataset=Shenzhen)
 DataModuleMontgomery = partial(BaseDataModule, dataset=Montgomery)
 DataModuleSHMT = partial(BaseDataModule, dataset=SHMT)
+DataModuleTBX11K = partial(BaseDataModule, dataset=TBX11K)

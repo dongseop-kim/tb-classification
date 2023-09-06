@@ -9,11 +9,6 @@ from trainer.engines.base import BaseEngine
 from trainer.models.base import BaseModel
 
 
-# def tmp_criterion(pred, target):
-#     target: torch.Tensor = target['labels']
-#     return nn.functional.binary_cross_entropy(pred, target.long(), reduction='mean')
-
-
 class ClassificationEngine(BaseEngine):
     def __init__(self,
                  model: BaseModel,
@@ -21,7 +16,7 @@ class ClassificationEngine(BaseEngine):
                  optimizer: Optional[Any] = None,
                  scheduler: Optional[Any] = None,
                  criterion: Optional[Callable] = None,
-                 ** kwargs):
+                 **kwargs):
         super().__init__(model, optimizer, scheduler)
 
         self.threshold = threshold

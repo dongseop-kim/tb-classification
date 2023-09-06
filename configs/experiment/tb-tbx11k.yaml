@@ -1,14 +1,14 @@
 # @package _global_
-project: "tuberculosis-SHMT"
-name: "tb-shmt-base-01-e100-1e-5-maxn4"
+project: "tuberculosis-tbx11k"
+name: "tb-x11k-base-01-e100-1e-5"
 img_size: 512
 input_channels: 1
 optimized_metric: valid/BinaryF1Score
 max_epochs: 100
 
 datamodule:
-  _target_: trainer.datamodules.base.DataModuleSHMT
-  data_dir: '/data1/pxi-dataset/cxr/public/tb_shenzhen'
+  _target_: trainer.datamodules.base.DataModuleTBX11K
+  data_dir: '/data1/pxi-dataset/cxr/public/tbx11k'
   batch_size: 16
   stage: 'train'
   dataset_config:
@@ -24,7 +24,7 @@ datamodule:
         p: 0.5
       rand_aug_pixel:
         p: 0.5
-        max_n: 4
+        max_n: 3
         channel_stacking: False
         replicate: False
         num_channels: ${input_channels}
@@ -73,7 +73,6 @@ datamodule:
         interpolation: 1 # 1:linear, 2:bicubic
 
 
-          
 model:
   _target_: trainer.models.BaseModel
   encoder:
@@ -88,24 +87,23 @@ model:
     name: base_classifier
     return_logits: True
 
+
 optimizer:
   _target_: torch.optim.AdamW
-  lr: 1e-5
+  lr: 1e-4
   weight_decay: 1e-4
 
 scheduler:
   _target_: torch.optim.lr_scheduler.CosineAnnealingLR
   T_max: ${max_epochs}
-  eta_min: 1.0e-07
+  eta_min: 1.0e-06
 
 engine:
-  _target_: trainer.engines.classification.ClassificationEngine
+  _target_: trainer.engines.classification.ClassificationEngine   
 
-
-  
 trainer:
   accelerator: "gpu"
-  devices: [1]
+  devices: [0]
   
   min_epochs: 1
   max_epochs: ${max_epochs}

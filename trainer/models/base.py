@@ -31,3 +31,9 @@ class BaseModel(nn.Module):
         x = self.decoder(x)
         x = self.header(x)
         return x
+
+    def load_weights(self, path: str, unwarp_key: str = 'model.'):
+        weights: Dict = torch.load(path, map_location='cpu')
+        weights: Dict = weights['state_dict'] if 'state_dict' in weights.keys() else weights
+        weights = {key.replace(unwarp_key, ''): weight for key, weight in weights.items()}
+        return self.load_state_dict(weights, strict=True)

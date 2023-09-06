@@ -40,7 +40,7 @@ class SHMT(BaseComponents):
         with open(_MONTGOMERY_ANNOTATION) as f:
             annots = json.load(f)['annotations']
             split = 'valid' if self.split == 'val' else split
-            annots += [annot for annot in annots if annot['etc']['split'] == split]
+            annots = [annot for annot in annots if annot['etc']['split'] == split]
             for ann in annots:
                 ann['image'] = '/data1/pxi-dataset/cxr/public/tb_montgomery/' + ann['image']
             self.annots += annots
@@ -54,7 +54,8 @@ class SHMT(BaseComponents):
 
     def _load_data(self, idx) -> DummyData:
         data = self.annots[idx]
-        path_image = str(Path(self.data_dir) / data['image'])
+        # path_image = str(Path(self.data_dir) / data['image'])
+        path_image = str(data['image'])
         path_image = path_image.replace('image_v1', 'image_v1_1024') if self.use_low_image else path_image
         image = self._load_image(path_image, is_cxr=True)
         age = data['property']['age']
