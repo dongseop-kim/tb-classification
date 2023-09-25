@@ -1,10 +1,12 @@
 from typing import List, Union
 
 from .linear import LinearDecoder
-from .upsamplecat import UpsampleCat
+from .upsamplecat import UpsampleCat, UpsampleCatwithConv
 
-available_decoders = {"linear": LinearDecoder,
-                      "upsamplecat": UpsampleCat}
+available_decoders = {'linear': LinearDecoder,
+                      'upsamplecat': UpsampleCat,
+                      'upsamplecatwithconv': UpsampleCatwithConv,
+                      }
 
 
 def build_decoder(name: str,
