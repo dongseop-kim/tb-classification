@@ -1,15 +1,12 @@
-from typing import List,  Tuple, Union
-
-from segmentation_models_pytorch.decoders.deeplabv3.decoder import DeepLabV3Decoder
-from segmentation_models_pytorch.decoders.deeplabv3.decoder import DeepLabV3PlusDecoder
-import torch
-
-from models.decoder.base import BaseDecoder
-
 import logging
+from typing import List, Tuple, Union
+
+import torch
+from segmentation_models_pytorch.decoders.deeplabv3.decoder import (
+    DeepLabV3Decoder, DeepLabV3PlusDecoder)
 
 
-class DeepLabV3(BaseDecoder, DeepLabV3Decoder):
+class DeepLabV3(DeepLabV3Decoder):
     """
     DeepLabV3 decoder from 'Rethinking Atrous Convolution for Semantic Image Segmentation,' https://arxiv.org/abs/1706.05587.
 
@@ -36,7 +33,9 @@ class DeepLabV3(BaseDecoder, DeepLabV3Decoder):
             in_strides = in_strides[-1]
             logging.warning("in_strides is a list, so in_strides[-1] is used as in_strides")
 
-        BaseDecoder.__init__(self, in_channels=in_channels, in_strides=in_strides)
+        self.in_channels = in_channels
+        self.in_strides = in_strides
+
         DeepLabV3Decoder.__init__(self, in_channels=in_channels, out_channels=out_channels,
                                   atrous_rates=atrous_rates)
         self.out_strides = in_strides
