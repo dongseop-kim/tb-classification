@@ -1,14 +1,14 @@
 # @package _global_
 project: "tuberculosis-tbx11k-final"
-name: "tbfinal-11k-01-e100-1e-5"
+name: "tbfinal-shmt-01-e100-1e-5"
 img_size: 512
 input_channels: 1
 optimized_metric: valid/BinaryF1Score
 max_epochs: 100
 
 datamodule:
-  _target_: trainer.datamodules.base.DataModuleTBX11K
-  data_dir: '/data1/pxi-dataset/cxr/public/tbx11k'
+  _target_: trainer.datamodules.base.SHMT
+  data_dir: '/data1/pxi-dataset/cxr/public/tb_shenzhen'
   batch_size: 16
   stage: 'train'
   dataset_config:
@@ -105,7 +105,7 @@ engine:
 
 trainer:
   accelerator: "gpu"
-  devices: [0]
+  devices: [1]
   
   min_epochs: 1
   max_epochs: ${max_epochs}
