@@ -2,8 +2,9 @@ from typing import List, Optional
 
 import torch
 import torch.nn as nn
-from models.decoder.base import BaseDecoder
-from models.layers import ConvBNReLU
+
+from trainer.models.decoder.base import BaseDecoder
+from trainer.models.layers import ConvBNReLU
 
 
 class UpsampleCat(BaseDecoder):

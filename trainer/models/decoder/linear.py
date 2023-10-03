@@ -1,7 +1,7 @@
 from typing import List, Union
 
 import torch
-from models.decoder.base import BaseDecoder
+from trainer.models.decoder.base import BaseDecoder
 
 
 class LinearDecoder(BaseDecoder):

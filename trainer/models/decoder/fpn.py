@@ -3,9 +3,9 @@ from typing import List, Optional, Union
 import torch
 import torch.nn as nn
 
-from models.layers import ConvBNReLU, UpsampleAdd
-from models.decoder.base import BaseDecoder
-from models.decoder.upsamplecat import UpsampleCat
+from trainer.models.layers import ConvBNReLU, UpsampleAdd
+from trainer.models.decoder.base import BaseDecoder
+from trainer.models.decoder.upsamplecat import UpsampleCat
 
 
 class FeaturePyramidNetwork(BaseDecoder):

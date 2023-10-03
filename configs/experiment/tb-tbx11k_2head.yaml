@@ -1,6 +1,6 @@
 # @package _global_
-project: "tuberculosis-tbx11k"
-name: "tb-x11k-base-01-e100-1e-5"
+project: "tuberculosis-tbx11k-final"
+name: "tbfinal-11k-01-e100-1e-5"
 img_size: 512
 input_channels: 1
 optimized_metric: valid/BinaryF1Score
@@ -81,10 +81,12 @@ model:
     in_chans: ${input_channels}
     features_only: True
   decoder:
-    name: upsamplecat
+    name: upsamplecatwithconv
     out_channels: 1024
   header:
-    name: base_classifier
+    name: 2head_classifier
+    num_classes2: 2 # normal, sick
+    mid_channels: 1024
     return_logits: True
 
 

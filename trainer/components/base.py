@@ -25,7 +25,6 @@ class DummyData:
     etc: Dict[str, Any] = field(default_factory=dict)
 
 
-
 class BaseComponents(Dataset):
     """
     Base Componenets for all datasets
@@ -53,10 +52,10 @@ class BaseComponents(Dataset):
             transformed = self.transforms(image=image)
             image = transformed['image']
         image = F.to_tensor(image)
-        return {"image": image,  # C H W
-                "target": {"labels": dummy_data.labels,
-                           "path": dummy_data.path_image}}
-
+        return {'image': image,  # C H W
+                'target': {'labels': dummy_data.labels,
+                           'path': dummy_data.path_image,
+                           'etc': dummy_data.etc}}
 
     def _load_image(self, path_image: str, is_cxr: bool = True) -> np.ndarray:
         image: np.ndarray = cv2.imread(path_image, cv2.IMREAD_UNCHANGED).astype(np.float32)
@@ -67,7 +66,7 @@ class BaseComponents(Dataset):
     def _load_data(self, idx) -> DummyData:
         raise NotImplementedError
 
-    def _build_transforms(self, transforms: Optional[List[Serializable]]=None, **kwargs):
+    def _build_transforms(self, transforms: Optional[List[Serializable]] = None, **kwargs):
         if transforms is None:
             return transforms
         else:

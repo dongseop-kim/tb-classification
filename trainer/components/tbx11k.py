@@ -51,6 +51,7 @@ class TBX11K(BaseComponents):
         image = self._load_image(path_image, is_cxr=True)
 
         labels = 1 if data['objects'] else 0
+        labels = 2 if 'sick' in data['image'] else labels
         active = 1 if '15Tuberculosis-active' in [obj['lesion_name'] for obj in data['objects']] else 0
         labels = np.array([labels,], dtype=np.int64)
         return DummyData(path_image=path_image,

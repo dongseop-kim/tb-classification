@@ -1,9 +1,9 @@
 import torch
 
-from models.decoder.deeplabv3 import DeepLabV3, DeepLabV3Plus
-from models.decoder.fpn import FeaturePyramidNetwork
-from models.decoder.linear import LinearDecoder
-from models.decoder.upsamplecat import UpsampleCat, UpsampleCatwithConv
+from trainer.models.decoder.deeplabv3 import DeepLabV3, DeepLabV3Plus
+from trainer.models.decoder.fpn import FeaturePyramidNetwork
+from trainer.models.decoder.linear import LinearDecoder
+from trainer.models.decoder.upsamplecat import UpsampleCat, UpsampleCatwithConv
 
 _INPUT_TENSOR = torch.randn(2, 64, 256, 256)
 _INPUT_LIST_TENSOR = [torch.randn(2, 64, 256, 256), torch.randn(2, 128, 128, 128),

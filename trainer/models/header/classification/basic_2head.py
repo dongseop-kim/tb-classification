@@ -32,7 +32,7 @@ class ClassifierWith2Head(BaseHeader):
                  in_strides: int,
                  mid_channels: int = 1024,
                  return_logits: bool = False,
-                 initial_prob: float = 0.01,):
+                 initial_prob: float = 0.01):
         if isinstance(in_channels, List):
             raise ValueError("BasicClassifier only supports single input.")
         if isinstance(in_strides, List):
@@ -53,8 +53,8 @@ class ClassifierWith2Head(BaseHeader):
         self.initial_prob = torch.tensor((1.0 - initial_prob) / initial_prob)
 
         # from focal loss official repo
-        nn.init.constant_(self.linear1.bias, -torch.log(self.initial_prob))
-        nn.init.constant_(self.linear2.bias, -torch.log(self.initial_prob))
+        nn.init.constant_(self.linear1[0].bias, -torch.log(self.initial_prob))
+        nn.init.constant_(self.linear2[0].bias, -torch.log(self.initial_prob))
 
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         x: torch.Tensor = self.conv(x)  # N x mid_channels x 1 x 1
