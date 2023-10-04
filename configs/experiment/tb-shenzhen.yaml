@@ -82,7 +82,7 @@ model:
     in_chans: ${input_channels}
     features_only: True
   decoder:
-    name: upsamplecat
+    name: upsamplecatwithconv
     out_channels: 1024
   header:
     name: base_classifier

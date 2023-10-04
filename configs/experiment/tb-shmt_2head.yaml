@@ -1,6 +1,6 @@
 # @package _global_
-project: "tuberculosis-tbx11k-final"
-name: "tbfinal-shmt-01-e100-1e-5"
+project: "tuberculosis-final"
+name: "tbfinal-shmt-e100-1e-5"
 img_size: 512
 input_channels: 1
 optimized_metric: valid/BinaryF1Score
@@ -9,7 +9,7 @@ max_epochs: 100
 datamodule:
   _target_: trainer.datamodules.base.DataModuleSHMT
   data_dir: '/data1/pxi-dataset/cxr/public/tb_shenzhen'
-  batch_size: 16
+  batch_size: 20
   stage: 'train'
   dataset_config:
     use_low_image: True
@@ -92,20 +92,20 @@ model:
 
 optimizer:
   _target_: torch.optim.AdamW
-  lr: 1e-5
-  weight_decay: 1e-4
+  lr: 1e-4
+  weight_decay: 1e-5
 
 scheduler:
   _target_: torch.optim.lr_scheduler.CosineAnnealingLR
   T_max: ${max_epochs}
-  eta_min: 1.0e-06
+  eta_min: 1.0e-07
 
 engine:
   _target_: trainer.engines.TBClassification   
 
 trainer:
   accelerator: "gpu"
-  devices: [3]
+  devices: [1]
   
   min_epochs: 1
   max_epochs: ${max_epochs}
@@ -133,7 +133,7 @@ callbacks:
     _target_: pytorch_lightning.callbacks.ModelCheckpoint
     monitor: ${optimized_metric}
     mode: max
-    save_top_k: 3
+    save_top_k: 5
     save_last: false
     verbose: false
     dirpath: checkpoints/
