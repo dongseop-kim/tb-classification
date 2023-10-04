@@ -92,7 +92,7 @@ model:
 
 optimizer:
   _target_: torch.optim.AdamW
-  lr: 1e-4
+  lr: 1e-5
   weight_decay: 1e-4
 
 scheduler:
@@ -105,7 +105,7 @@ engine:
 
 trainer:
   accelerator: "gpu"
-  devices: [0]
+  devices: [2]
   
   min_epochs: 1
   max_epochs: ${max_epochs}
