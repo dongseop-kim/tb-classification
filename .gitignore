@@ -1,7 +1,19 @@
-# temporary files
-__pycache__/
-.pytest_cache/
-.ipynb_checkpoints/
+### VSCODE ###
+.vscode/
 
-# test notebooks
-*.ipynb
+### PYTHON ###
+__pycache__
+.pytest_cache/
+
+### JUPYTER ###
+!examples/*.ipynb
+test*.ipynb
+
+### BUILD ###
+build/
+univdt.egg-info/
+
+### PERSONAL ###
+user-requirements.txt
+getdatasets/
+tmp/
