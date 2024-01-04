@@ -1,0 +1,21 @@
+### VSCODE ###
+.vscode/
+
+### PYTHON ###
+__pycache__
+.pytest_cache/
+
+### JUPYTER ###
+.ipynb_checkpoints/
+!examples/*.ipynb
+test*.ipynb
+
+
+### BUILD ###
+build/
+univdt.egg-info/
+
+### PERSONAL ###
+user-requirements.txt
+getdatasets/
+tmp/
