@@ -10,7 +10,6 @@ __pycache__
 !examples/*.ipynb
 test*.ipynb
 
-
 ### BUILD ###
 build/
 univdt.egg-info/
@@ -19,3 +18,6 @@ univdt.egg-info/
 user-requirements.txt
 getdatasets/
 tmp/
+
+### CONFIGS ###
+configs/experiment/custom/*
