@@ -20,4 +20,4 @@ getdatasets/
 tmp/
 
 ### CONFIGS ###
-configs/experiment/custom/*
+custom/
