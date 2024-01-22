@@ -1,7 +1,7 @@
 import torch
 
 from trainer.models.decoder.base import Identity
-from trainer.models.decoder.upsamplecat import UpsampleConcat
+from trainer.models.decoder.upsample_concat import UpsampleConcat
 
 INPUT_TENSOR = torch.randn(2, 64, 256, 256)
 INPUT_LIST_TENSOR = [torch.randn(2, 64, 256, 256), torch.randn(2, 128, 128, 128),
