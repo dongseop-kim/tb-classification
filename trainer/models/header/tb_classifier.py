@@ -18,7 +18,7 @@ def loss_tb_with_aux(logit_tb: T, logit_aux: T, target: dict[str, T],
     #   'both': 3
     #   'others': 4
     labels = target['label']  # N
-    label_tb = T([1 if l in [1, 2, 3] else 0 for l in label])
+    label_tb = T([1 if l in [1, 2, 3] else 0 for l in labels])
     label_tb = label_tb.to(device=logit_tb.device, dtype=torch.float)
     loss_tb = criterion(logit_tb, label_tb)
     output = {'loss': loss_tb, 'loss_tb': loss_tb}
