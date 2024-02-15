@@ -17,17 +17,24 @@ def loss_tb_with_aux(logit_tb: T, logit_aux: T, target: dict[str, T],
     #   'inactivetb': 2
     #   'both': 3
     #   'others': 4
-    label = target['label']  # N
+    labels = target['label']  # N
     label_tb = T([1 if l in [1, 2, 3] else 0 for l in label])
     label_tb = label_tb.to(device=logit_tb.device, dtype=torch.float)
     loss_tb = criterion(logit_tb, label_tb)
     output = {'loss': loss_tb, 'loss_tb': loss_tb}
-    if target['dataset'] == 'tbx11k':
-        label_aux = T([1 if l in [2, 3] else 0 for l in label])
-        label_aux = label_aux.to(device=logit_aux.device, dtype=torch.long)
-        loss_aux = criterion(logit_aux, label_aux)
-        loss = loss_tb + loss_aux
-        output.update({'loss': loss, 'loss_aux': loss_aux})
+
+    # it works only when dataset is TBX11k dataset &  label is in [normal ,others]
+    loss_aux = []
+    for dataset, label, logit in zip(target['dataset'], labels, logit_aux):
+        if dataset == 'tbx11k' and label not in [1, 2, 3]:
+            label_aux = T([1 if label == 4 else 0])
+            label_aux = label_aux.to(device=logit.device, dtype=torch.float)
+            loss_aux.append(criterion(logit, label_aux))
+
+    if loss_aux:
+        loss_aux = torch.stack(loss_aux).mean()
+        output['loss_aux'] = loss_aux
+        output['loss'] = torch.add(output['loss'], loss_aux)
     return output
 
 

@@ -20,16 +20,24 @@ class TBClsEngine(LightningModule):
         x: torch.Tensor = batch['image']
         target = {'label': batch['label'], 'dataset': batch['dataset']}
         output = self.model(x, target)
-        # logging
-        self.log('train/loss', output['loss'], on_step=True, on_epoch=False, prog_bar=True)
-        self.log('train/loss-tb', output['loss_tb'], on_step=True, on_epoch=False, prog_bar=False)
         return output
+
+    def on_train_batch_end(self, outputs, batch: Any, batch_idx: int, dataloader_idx: int):
+        # logging
+        self.log('train/loss', outputs['loss'], on_step=True, on_epoch=False, prog_bar=True)
+        self.log('train/loss-tb', outputs['loss_tb'], on_step=True, on_epoch=False, prog_bar=False)
+        if 'loss_aux' in outputs:
+            self.log('val/loss-aux', outputs['loss_aux'], on_step=True, on_epoch=False, prog_bar=False)
 
     def validation_step(self, batch: dict[str, Any], batch_idx: int) -> dict[str, Any]:
         x: torch.Tensor = batch['image']
         target = {'label': batch['label'], 'dataset': batch['dataset']}
         output = self.model(x, target)
-        # logging
-        self.log('val/loss', output['loss'], on_step=True, on_epoch=False, prog_bar=True)
-        self.log('val/loss-tb', output['loss_tb'], on_step=True, on_epoch=False, prog_bar=False)
         return output
+
+    def on_validation_batch_end(self, outputs, batch: Any, batch_idx: int):
+        # logging
+        self.log('val/loss', outputs['loss'], on_step=True, on_epoch=False, prog_bar=True)
+        self.log('val/loss-tb', outputs['loss_tb'], on_step=True, on_epoch=False, prog_bar=False)
+        if 'loss_aux' in outputs:
+            self.log('val/loss-aux', outputs['loss_aux'], on_step=True, on_epoch=False, prog_bar=False)
