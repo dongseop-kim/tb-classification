@@ -29,7 +29,7 @@ def loss_tb_with_aux(logit_tb: T, logit_aux: T, target: dict[str, T],
         if dataset == 'tbx11k' and label not in [1, 2, 3]:
             label_aux = T([1 if label == 4 else 0])
             label_aux = label_aux.to(device=logit.device, dtype=torch.float)
-            loss_aux.append(criterion(logit, label_aux))
+            loss_aux.append(criterion(logit.unsqueeze(0), label_aux))
 
     if loss_aux:
         loss_aux = torch.stack(loss_aux).mean()

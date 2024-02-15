@@ -22,12 +22,12 @@ class TBClsEngine(LightningModule):
         output = self.model(x, target)
         return output
 
-    def on_train_batch_end(self, outputs, batch: Any, batch_idx: int, dataloader_idx: int):
+    def on_train_batch_end(self, outputs, batch: Any, batch_idx: int):
         # logging
         self.log('train/loss', outputs['loss'], on_step=True, on_epoch=False, prog_bar=True)
         self.log('train/loss-tb', outputs['loss_tb'], on_step=True, on_epoch=False, prog_bar=False)
         if 'loss_aux' in outputs:
-            self.log('val/loss-aux', outputs['loss_aux'], on_step=True, on_epoch=False, prog_bar=False)
+            self.log('train/loss-aux', outputs['loss_aux'], on_step=True, on_epoch=False, prog_bar=False)
 
     def validation_step(self, batch: dict[str, Any], batch_idx: int) -> dict[str, Any]:
         x: torch.Tensor = batch['image']
