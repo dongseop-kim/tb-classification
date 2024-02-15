@@ -21,3 +21,7 @@ tmp/
 
 ### CONFIGS ###
 custom/
+
+
+### TRAINING ###
+checkpoints/

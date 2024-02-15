@@ -1,0 +1,74 @@
+config_datamodule:
+  data_dir: '/data1/dongseopkim/datasets/tbx11k'
+  datasets: 'tbx11k'
+  num_workers: 0
+  split_train: 'train' # default: 'train'
+  split_val: 'val' # default: 'val'
+  split_test: 'test' # default: 'test'
+  additional_keys: [] # default: []
+  
+  # datasets_train: ['tbx11k'] 
+  # datasets_val: ['tbx11k'] 
+  # datasets_test: ['tbx11k'] 
+  batch_size_train: 32
+  batch_size_val: 8
+  batch_size_test: 8
+
+
+config_model:
+  _target_: trainer.models.Model
+  encoder:
+    name: 'resnet18'
+    in_chans: 1
+    out_indices: [1,2,3,4]
+  decoder:
+    name: 'upsample_concat'
+    out_strides: 16
+  header:
+    name: 'tb_classifier_v1'
+    
+
+
+config_optimizer:
+  _target_: torch.optim.RAdam
+  lr: 0.0001
+
+config_scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  T_max: 50
+  eta_min: 0.000001
+
+config_engine:
+  _target_: trainer.engine.TBClsEngine
+
+config_logger:
+  _target_: pytorch_lightning.loggers.wandb.WandbLogger
+  project: 'tb-classification'
+  name: 'tbx11k-test'
+  save_dir: '/data1/dongseopkim/{project}/{name}'
+  offline: False
+  id: null # pass correct id to resume experiment!
+  log_model: False
+  prefix: ""
+  job_type: "train"
+  group: ""
+  tags: []
+
+
+config_trainer:
+  _target_:  pytorch_lightning.Trainer
+  min_epochs: 1
+  max_epochs: 100
+  
+  accelerator: 'gpu'
+  devices: [0]
+  precision: '16-mixed' # auto mixed precsion
+  accumulate_grad_batches: 1 # gradient accumulation
+  
+  log_every_n_steps: 1
+  num_sanity_val_steps: 2
+
+
+
+  
+
