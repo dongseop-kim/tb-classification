@@ -50,9 +50,9 @@ class Concat(nn.Module):
 
 
 # w/o normalization layer
-conv_relu = partial(Conv2dNormActivation, norm_layer=None, activation_layer=nn.ReLU)
-conv_swish = partial(Conv2dNormActivation, norm_layer=None, activation_layer=nn.SiLU)
+ConvReLU = partial(Conv2dNormActivation, norm_layer=None, activation_layer=nn.ReLU)
+ConvSwish = partial(Conv2dNormActivation, norm_layer=None, activation_layer=nn.SiLU)
 # w/ normalization layer
-conv_bn = partial(Conv2dNormActivation, norm_layer=nn.BatchNorm2d, activation_layer=nn.Identity)
-conb_bn_relu = partial(Conv2dNormActivation, norm_layer=nn.BatchNorm2d, activation_layer=nn.ReLU)
-conv_bn_swish = partial(Conv2dNormActivation, norm_layer=nn.BatchNorm2d, activation_layer=nn.SiLU)
+ConvBN = partial(Conv2dNormActivation, norm_layer=nn.BatchNorm2d, activation_layer=nn.Identity)
+ConvBNReLU = partial(Conv2dNormActivation, norm_layer=nn.BatchNorm2d, activation_layer=nn.ReLU)
+ConvBNSwish = partial(Conv2dNormActivation, norm_layer=nn.BatchNorm2d, activation_layer=nn.SiLU)
