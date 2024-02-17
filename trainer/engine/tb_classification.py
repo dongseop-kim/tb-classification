@@ -7,6 +7,8 @@ from torchmetrics import ConfusionMatrix
 from trainer.engine.base import BaseEngine
 from trainer.models import Model
 
+_eps = 1e-7
+
 
 class TBClsEngine(BaseEngine):
     def __init__(self, model: Model, optimizer=None, scheduler=None):
@@ -26,45 +28,63 @@ class TBClsEngine(BaseEngine):
         output = self.model(x, target)
         return output
 
-    ''' == TRAINING == '''
+    def update_confusion_matrix(self, outputs: dict[str, torch.Tensor], batch: Any, meter: ConfusionMatrix):
+        '''Update confusion matrix for each batch'''
+        logit_tb = outputs['logit_tb']  # N
+        pred_tb = torch.sigmoid(logit_tb)  # N
+        label_tb = [1 if label in [1, 2, 3] else 0 for label in batch['label']]
+        label_tb = torch.Tensor(label_tb).to(pred_tb.device).to(torch.long)
+        meter.update(pred_tb, label_tb)
+
+    def compute_confusion_matrix(self, meter: ConfusionMatrix):
+        '''Compute confusion matrix'''
+        confusion_matrix: torch.Tensor = meter.compute()
+        tn, fp, fn, tp = confusion_matrix.view(-1)
+        accuracy = (tp + tn) / (tp + tn + fp + fn + _eps)
+        precision = tp / (tp + fp + _eps)
+        sensitivity = tp / (tp + fn + _eps)
+        specificity = tn / (tn + fp + _eps)
+        f1score = 2 * (precision * sensitivity) / (precision + sensitivity + _eps)
+        return {'accuracy': accuracy, 'precision': precision, 'sensitivity': sensitivity,
+                'specificity': specificity, 'f1score': f1score}
+
+    ''' ====================== '''
+    ''' ===== TRAINING ===== '''
+    ''' ====================== '''
 
     def training_step(self, batch: dict[str, Any], batch_idx: int) -> dict[str, Any]:
         return self.step(batch)
 
     def on_train_batch_end(self, outputs, batch: Any, batch_idx: int):
-        pred_tb = torch.sigmoid(outputs['logit_tb'])  # N
-        pred_aux = torch.sigmoid(outputs['logit_aux'])  # N
-        label_tb = [1 if label in [1, 2, 3] else 0 for label in batch['label']]
-        label_tb = torch.Tensor(label_tb).to(pred_tb.device).to(torch.long)
-        self.meter_train.update(pred_tb, label_tb)
-
         self.log('train/loss', outputs['loss'], on_step=True, on_epoch=False, prog_bar=True)
         self.train_step_outputs.append(outputs)  # save outputs
+        self.update_confusion_matrix(outputs, batch, self.meter_train)
+        scores: dict[str, torch.Tensor] = self.compute_confusion_matrix(self.meter_train)
+        scores = {f'train/{k}': v for k, v in scores.items()}
+        self.log_dict(scores, on_step=True, on_epoch=False, prog_bar=True)
 
     def on_train_epoch_end(self):
-        loss_tb_per_epoch = torch.stack([x['loss_tb'] for x in self.train_step_outputs]).mean()
-        self.log('train/loss_tb', loss_tb_per_epoch, on_step=False, on_epoch=True, prog_bar=True)
+        self.aggregate_and_logging(self.train_step_outputs, 'loss_tb', prefix='train', is_step=False)
         self.train_step_outputs.clear()
         self.meter_train.reset()
 
-    ''' == VALIDATION == '''
+    ''' ====================== '''
+    ''' ===== VALIDATION ===== '''
+    ''' ====================== '''
 
     def validation_step(self, batch: dict[str, Any], batch_idx: int) -> dict[str, Any]:
         return self.step(batch)
 
     def on_validation_batch_end(self, outputs, batch: Any, batch_idx: int):
-        pred_tb = torch.sigmoid(outputs['logit_tb'])  # N
-        pred_aux = torch.sigmoid(outputs['logit_aux'])  # N
-        label_tb = [1 if label in [1, 2, 3] else 0 for label in batch['label']]
-        label_tb = torch.Tensor(label_tb).to(pred_tb.device).to(torch.long)
-        self.meter_val.update(pred_tb, label_tb)
-
-        self.validation_step_outputs.append(outputs)  # save outputs
+        self.validation_step_outputs.append(outputs)
+        self.update_confusion_matrix(outputs, batch, self.meter_val)
 
     def on_validation_epoch_end(self):
-        loss_per_epoch = torch.stack([x['loss'] for x in self.validation_step_outputs]).mean()
-        self.log('val/loss', loss_per_epoch, on_step=False, on_epoch=True, prog_bar=True)
-        loss_tb_per_epoch = torch.stack([x['loss_tb'] for x in self.validation_step_outputs]).mean()
-        self.log('val/loss_tb', loss_tb_per_epoch, on_step=False, on_epoch=True, prog_bar=True)
-        self.validation_step_outputs.clear()
+        scores = self.compute_confusion_matrix(self.meter_val)
+        scores = {f'val/{k}': v for k, v in scores.items()}
+        self.log_dict(scores, on_step=False, on_epoch=True, prog_bar=True)
         self.meter_val.reset()
+
+        self.aggregate_and_logging(self.validation_step_outputs, 'loss', prefix='val', is_step=False)
+        self.aggregate_and_logging(self.validation_step_outputs, 'loss_tb', prefix='val', is_step=False)
+        self.validation_step_outputs.clear()

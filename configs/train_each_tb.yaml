@@ -1,8 +1,9 @@
 project: 'tb-classification'
-name: 'tbx11k-02'
+name: 'tbx11k-04'
 base_lr: 0.0001
 max_epochs: 100
 save_dir: '/data1/dongseopkim/${project}/${name}'
+devcies: [3]
 
 config_datamodule:
   data_dir: '/data1/dongseopkim/datasets/tbx11k'
@@ -70,7 +71,7 @@ config_trainer:
   max_epochs: ${max_epochs}
   
   accelerator: 'gpu'
-  devices: [2]
+  devices: ${devcies}
   precision: '16-mixed' # auto mixed precsion
   accumulate_grad_batches: 1 # gradient accumulation
   

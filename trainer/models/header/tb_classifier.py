@@ -47,7 +47,6 @@ class TBClassifierV1(nn.Module):
         self.num_classes = num_classes
         self.in_channels = in_channels
         self.in_strides = in_strides
-        self.prior_prob = math.log((1 - prior_prob) / prior_prob)
 
         self.conv1 = nn.Sequential(ConvBNReLU(in_channels, 512, 3, 1, 1, bias=False),
                                    ConvBNReLU(512, 1024, 3, 2, 1, bias=False))
@@ -59,11 +58,13 @@ class TBClassifierV1(nn.Module):
         self.aux_classifier = nn.Sequential(ConvBNReLU(1024, 1024, 3, 1, 1, bias=False),
                                             nn.AdaptiveAvgPool2d((1, 1)),
                                             nn.Conv2d(1024, 1, 1, 1, 0))
+
         # weight initialization with prior probability. this setting is used in Focal Loss.
+        self.prior_prob = math.log((1 - prior_prob) / prior_prob)
         nn.init.normal_(self.classifier[-1].weight, std=0.01)
-        nn.init.constant_(self.classifier[-1].bias, self.prior_prob)
+        nn.init.constant_(self.classifier[-1].bias, -1 * self.prior_prob)
         nn.init.normal_(self.aux_classifier[-1].weight, std=0.01)
-        nn.init.constant_(self.aux_classifier[-1].bias, self.prior_prob)
+        nn.init.constant_(self.aux_classifier[-1].bias, -1 * self.prior_prob)
 
         self.criterion = nn.BCEWithLogitsLoss(reduction='mean')
 
