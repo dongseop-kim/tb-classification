@@ -40,15 +40,17 @@ def train_all(config: DictConfig):
     '''Build Logger'''
     logger = hydra.utils.instantiate(config.config_logger)
 
-    '''Build Trainer'''
+    '''Build Callbacks'''
     cb_model_summary = RichModelSummary(max_depth=1)
     cb_progress_bar = RichProgressBar()
     cb_lr_monitor = LearningRateMonitor(logging_interval='step')
-    cb_model_checkpoint = ModelCheckpoint(monitor='train/loss', mode='min',
+    # 나중에 config로 옮기기
+    cb_model_checkpoint = ModelCheckpoint(monitor='val/f1score', mode='max',
                                           save_top_k=3, save_last=True,
                                           dirpath=Path(config.save_dir) / 'checkpoints/',
                                           filename='epoch_{epoch:03d}')
 
+    '''Build Trainer'''
     trainer: Trainer = hydra.utils.instantiate(config.config_trainer,
                                                callbacks=[cb_model_summary, cb_progress_bar,
                                                           cb_lr_monitor, cb_model_checkpoint],
