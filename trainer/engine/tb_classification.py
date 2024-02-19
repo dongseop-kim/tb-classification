@@ -88,3 +88,16 @@ class TBClsEngine(BaseEngine):
         self.aggregate_and_logging(self.validation_step_outputs, 'loss', prefix='val', is_step=False)
         self.aggregate_and_logging(self.validation_step_outputs, 'loss_tb', prefix='val', is_step=False)
         self.validation_step_outputs.clear()
+
+    ''' ====================== '''
+    ''' ====== PREDICT  ====== '''
+    ''' ====================== '''
+
+    def predict_step(self, batch: dict[str, Any], batch_idx: int):
+        output = self.model(batch['image'].to(self.device))
+        logit_tb = output['logit_tb']
+        logit_aux = output['logit_aux']
+        pred_tb = torch.sigmoid(logit_tb)
+        pred_aux = torch.sigmoid(logit_aux)
+        return {'logit_tb': logit_tb, 'logit_aux': logit_aux, 
+                'pred_tb': pred_tb, 'pred_aux': pred_aux}

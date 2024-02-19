@@ -4,15 +4,14 @@ from pathlib import Path
 from typing import Any
 
 import hydra
-import yaml
 from omegaconf import DictConfig
 from pytorch_lightning import LightningDataModule, Trainer
 from pytorch_lightning.callbacks import (LearningRateMonitor, ModelCheckpoint,
                                          RichModelSummary, RichProgressBar)
-from pytorch_lightning.loggers.wandb import WandbLogger
 
 from trainer.datamodule import TBDataModule
 from trainer.models import Model
+from trainer.utils.common import load_config
 
 
 def train_all(config: DictConfig):
@@ -46,7 +45,7 @@ def train_all(config: DictConfig):
     cb_lr_monitor = LearningRateMonitor(logging_interval='step')
     # 나중에 config로 옮기기
     cb_model_checkpoint = ModelCheckpoint(monitor='val/f1score', mode='max',
-                                          save_top_k=3, save_last=True,
+                                          save_top_k=3, save_last=False,
                                           dirpath=Path(config.save_dir) / 'checkpoints/',
                                           filename='epoch_{epoch:03d}')
 
@@ -62,11 +61,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, required=True)
     args = parser.parse_args()
-    with open(args.config) as f:
-        config = yaml.load(f, Loader=yaml.FullLoader)
-        config = DictConfig(config)
-        # copy to save_dir
-        save_dir = Path(config.save_dir)
-        save_dir.mkdir(parents=True, exist_ok=True)
-        shutil.copy(args.config, save_dir / 'config.yaml')
+    config = load_config(args.config)
+    # copy to save_dir
+    save_dir = Path(config.save_dir)
+    save_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy(args.config, save_dir / 'config.yaml')
     train_all(config)
