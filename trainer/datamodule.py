@@ -44,7 +44,7 @@ class TBDataModule(LightningDataModule):
 
     """
 
-    def __init__(self, 
+    def __init__(self,
                  data_dir: str | list[str],
                  datasets: str | list[str],
                  batch_size: Optional[int] = None,
@@ -99,26 +99,25 @@ class TBDataModule(LightningDataModule):
 
     def prepare_data(self):
         pass
-    
-    def _load_datasets(self, datasets: list[str], split: str, transforms: dict[str, Any]) -> Dataset:
-        dataset = partial(PublicTuberculosis, root_dir=self.data_dir, additional_keys=self.additional_keys)
-        loaded_datasets = [dataset(dataset=ds, split=split, transform=transforms) for ds in datasets]
+
+    def _load_datasets(self, split: str, transforms: dict[str, Any]) -> Dataset:
+        dataset = partial(PublicTuberculosis, split=split, transform=transforms, additional_keys=self.additional_keys)
+        loaded_datasets = [dataset(root_dir=dr,  dataset=ds) for ds, dr in zip(self.datasets, self.data_dir)]
         return ConcatDataset(loaded_datasets)
-    
+
     def setup(self, stage: str = None):
         # stage must be in ['fit', 'validate', 'test', 'predict']
         assert stage in ['fit', 'validate', 'test', 'predict'], f'Invalid stage: {stage}'
-
         # TODO: Multiple dataset 사용 가능하도록 수정하기.
-        assert len(self.datasets) <= 1, "Multiple datasets are not supported yet"
+        # assert len(self.datasets) <= 1, "Multiple datasets are not supported yet"
         match stage:
             case 'fit':
-                self.dataset_train = self._load_datasets(self.datasets, self.split_train, self.transforms_train)
-                self.dataset_val = self._load_datasets(self.datasets, self.split_val, self.transforms_train)
+                self.dataset_train = self._load_datasets(self.split_train, self.transforms_train)
+                self.dataset_val = self._load_datasets(self.split_val, self.transforms_train)
             case 'validate':
-                self.dataset_val = self._load_datasets(self.datasets, self.split_val, self.transforms_train)
+                self.dataset_val = self._load_datasets(self.split_val, self.transforms_train)
             case 'test':
-                self.dataset_test = self._load_datasets(self.datasets, self.split_test, self.transforms_test)
+                self.dataset_test = self._load_datasets(self.split_test, self.transforms_test)
             case 'predict':
                 pass
 
@@ -129,17 +128,17 @@ class TBDataModule(LightningDataModule):
     def train_dataloader(self):
         return DataLoader(self.dataset_train, batch_size=self.batch_size_train, shuffle=True, num_workers=self.num_workers,
                           drop_last=True, pin_memory=self.pin_memory, persistent_workers=self.persistent_workers,
-                          collate_fn=self.dataset_train.collate_fn)
+                          collate_fn=None)
 
     def val_dataloader(self):
         return DataLoader(self.dataset_val, batch_size=self.batch_size_val, shuffle=False, num_workers=self.num_workers,
                           drop_last=False, pin_memory=self.pin_memory, persistent_workers=self.persistent_workers,
-                          collate_fn=self.dataset_val.collate_fn)
+                          collate_fn=None)
 
     def test_dataloader(self):
         return DataLoader(self.dataset_test, batch_size=self.batch_size_test, shuffle=False, num_workers=self.num_workers,
                           drop_last=False, pin_memory=self.pin_memory, persistent_workers=self.persistent_workers,
-                          collate_fn=self.dataset_test.collate_fn)
+                          collate_fn=None)
 
     def predict_dataloader(self):
         pass

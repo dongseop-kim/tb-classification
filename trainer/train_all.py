@@ -21,11 +21,11 @@ def train_all(config: DictConfig):
     datamodule.setup('fit')
     train_dataloader = datamodule.train_dataloader()
     val_dataloader = datamodule.val_dataloader()
-    # print(len(train_dataloader), train_dataloader.batch_size, len(train_dataloader.dataset))
-    # print(len(val_dataloader), val_dataloader.batch_size, len(val_dataloader.dataset))
+    print(len(train_dataloader), train_dataloader.batch_size, len(train_dataloader.dataset))
+    print(len(val_dataloader), val_dataloader.batch_size, len(val_dataloader.dataset))
 
     '''Build Model'''
-    num_classes: int = train_dataloader.dataset.num_classes
+    num_classes: int = 1
 
     model: Model = hydra.utils.instantiate(config.config_model, num_classes=num_classes)
 
