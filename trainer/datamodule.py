@@ -6,7 +6,7 @@ from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 from univdt.components import PublicTuberculosis
 from univdt.transforms.builder import AVAILABLE_TRANSFORMS
-
+from torch.utils.data import ConcatDataset
 DEFAULT_HEIGHT = 768
 DEFAULT_WIDTH = 768
 DEFAULT_TRAIN_TRANSFORMS = A.Compose([AVAILABLE_TRANSFORMS['random_resize'](height=DEFAULT_HEIGHT,
@@ -44,7 +44,8 @@ class TBDataModule(LightningDataModule):
 
     """
 
-    def __init__(self, data_dir: str,
+    def __init__(self, 
+                 data_dir: str | list[str],
                  datasets: str | list[str],
                  batch_size: Optional[int] = None,
                  num_workers: Optional[int] = None,
@@ -66,9 +67,9 @@ class TBDataModule(LightningDataModule):
                  batch_size_val: Optional[int] = None,
                  batch_size_test: Optional[int] = None):
         super().__init__()
-        self.data_dir = data_dir
         """ Load all datasets for training"""
-        self.datasets = datasets if isinstance(datasets, list) else [datasets]
+        self.data_dir = [data_dir] if isinstance(data_dir, str) else data_dir
+        self.datasets = [datasets] if isinstance(datasets, str) else datasets
 
         # get splits and check
         self.split_train = split_train if split_train is not None else 'train'
@@ -98,26 +99,26 @@ class TBDataModule(LightningDataModule):
 
     def prepare_data(self):
         pass
-
+    
+    def _load_datasets(self, datasets: list[str], split: str, transforms: dict[str, Any]) -> Dataset:
+        dataset = partial(PublicTuberculosis, root_dir=self.data_dir, additional_keys=self.additional_keys)
+        loaded_datasets = [dataset(dataset=ds, split=split, transform=transforms) for ds in datasets]
+        return ConcatDataset(loaded_datasets)
+    
     def setup(self, stage: str = None):
         # stage must be in ['fit', 'validate', 'test', 'predict']
         assert stage in ['fit', 'validate', 'test', 'predict'], f'Invalid stage: {stage}'
 
         # TODO: Multiple dataset 사용 가능하도록 수정하기.
         assert len(self.datasets) <= 1, "Multiple datasets are not supported yet"
-        dataset = partial(PublicTuberculosis, root_dir=self.data_dir, additional_keys=self.additional_keys)
         match stage:
             case 'fit':
-                self.dataset_train = dataset(dataset=self.datasets[0], split=self.split_train,
-                                             transform=self.transforms_train)
-                self.dataset_val = dataset(dataset=self.datasets[0], split=self.split_val,
-                                           transform=self.transforms_train)
+                self.dataset_train = self._load_datasets(self.datasets, self.split_train, self.transforms_train)
+                self.dataset_val = self._load_datasets(self.datasets, self.split_val, self.transforms_train)
             case 'validate':
-                self.dataset_val = dataset(dataset=self.datasets[0], split=self.split_val,
-                                           transform=self.transforms_train)
+                self.dataset_val = self._load_datasets(self.datasets, self.split_val, self.transforms_train)
             case 'test':
-                self.dataset_test = dataset(dataset=self.datasets[0], split=self.split_test,
-                                            transform=self.transforms_test)
+                self.dataset_test = self._load_datasets(self.datasets, self.split_test, self.transforms_test)
             case 'predict':
                 pass
 
